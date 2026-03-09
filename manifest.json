@@ -1,0 +1,92 @@
+{
+  "name": "multi-platform-publisher",
+  "version": "1.0.0",
+  "description": "Publish content to multiple social media platforms (X/Twitter, LinkedIn, WeChat Official Account, Xiaohongshu) with one command. Automatically adapts content for each platform.",
+  "author": "mguozhen",
+  "license": "MIT",
+  "homepage": "https://github.com/mguozhen/multi-platform-publisher",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mguozhen/multi-platform-publisher.git"
+  },
+  "triggers": [
+    "publish to social media",
+    "post to twitter",
+    "post to linkedin",
+    "publish to wechat",
+    "publish to xiaohongshu",
+    "multi-platform publish",
+    "cross-post",
+    "social media publish",
+    "一键发布",
+    "多平台发布"
+  ],
+  "permissions": [
+    "network",
+    "filesystem"
+  ],
+  "platforms": {
+    "twitter": {
+      "name": "X / Twitter",
+      "auth_method": "OAuth 1.0a",
+      "required_env": [
+        "TWITTER_API_KEY",
+        "TWITTER_API_SECRET",
+        "TWITTER_ACCESS_TOKEN",
+        "TWITTER_ACCESS_TOKEN_SECRET"
+      ],
+      "features": ["tweet", "thread", "image_upload"],
+      "max_text_length": 280,
+      "max_images": 4,
+      "supported_image_formats": ["jpg", "jpeg", "png", "gif", "webp"]
+    },
+    "linkedin": {
+      "name": "LinkedIn",
+      "auth_method": "OAuth 2.0",
+      "required_env": [
+        "LINKEDIN_ACCESS_TOKEN"
+      ],
+      "features": ["article", "post", "image_upload"],
+      "max_text_length": 3000,
+      "max_images": 9,
+      "supported_image_formats": ["jpg", "jpeg", "png", "gif"]
+    },
+    "wechat": {
+      "name": "WeChat Official Account (微信公众号)",
+      "auth_method": "API Token",
+      "required_env": [
+        "WECHAT_APPID",
+        "WECHAT_APPSECRET"
+      ],
+      "features": ["draft_creation", "image_upload", "html_article"],
+      "max_images": 10,
+      "supported_image_formats": ["jpg", "jpeg", "png", "gif"]
+    },
+    "xiaohongshu": {
+      "name": "Xiaohongshu (小红书)",
+      "auth_method": "MCP / Cookie",
+      "required_env": [
+        "XHS_COOKIE"
+      ],
+      "features": ["note", "image_upload"],
+      "max_text_length": 1000,
+      "max_images": 18,
+      "supported_image_formats": ["jpg", "jpeg", "png"]
+    }
+  },
+  "config": {
+    "default_platforms": "all",
+    "content_adaptation": true,
+    "auto_hashtags": true,
+    "thread_split_strategy": "sentence",
+    "wechat_draft_mode": true,
+    "dry_run": false
+  },
+  "dependencies": {
+    "python": ">=3.8",
+    "packages": [
+      "requests>=2.28.0",
+      "tweepy>=4.14.0"
+    ]
+  }
+}

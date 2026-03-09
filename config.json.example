@@ -1,0 +1,26 @@
+{
+  "twitter": {
+    "api_key": "YOUR_TWITTER_API_KEY",
+    "api_secret": "YOUR_TWITTER_API_SECRET",
+    "access_token": "YOUR_TWITTER_ACCESS_TOKEN",
+    "access_token_secret": "YOUR_TWITTER_ACCESS_TOKEN_SECRET"
+  },
+  "linkedin": {
+    "access_token": "YOUR_LINKEDIN_ACCESS_TOKEN",
+    "person_urn": "urn:li:person:YOUR_PERSON_ID"
+  },
+  "wechat": {
+    "appid": "YOUR_WECHAT_APPID",
+    "appsecret": "YOUR_WECHAT_APPSECRET"
+  },
+  "xiaohongshu": {
+    "cookie": "YOUR_XHS_COOKIE",
+    "mcp_endpoint": "http://localhost:3001"
+  },
+  "settings": {
+    "default_platforms": "all",
+    "content_adaptation": true,
+    "auto_hashtags": true,
+    "dry_run": false
+  }
+}
