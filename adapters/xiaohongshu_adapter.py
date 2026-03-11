@@ -32,7 +32,7 @@ import os
 import time
 import hashlib
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional, Union
 
 import requests
 
@@ -53,7 +53,7 @@ class XiaohongshuAdapter(BaseAdapter):
     # Default MCP endpoint
     DEFAULT_MCP_ENDPOINT = "http://localhost:3001"
 
-    def __init__(self, config: dict | None = None):
+    def __init__(self, config: Optional[dict] = None):
         super().__init__(config or {})
         self.cookie = self.config.get("cookie") or os.environ.get("XHS_COOKIE", "")
         self.mcp_endpoint = (
@@ -66,7 +66,7 @@ class XiaohongshuAdapter(BaseAdapter):
                 "Xiaohongshu credentials incomplete. Set XHS_COOKIE."
             )
 
-        self._use_mcp: bool | None = None  # determined lazily
+        self._use_mcp: Optional[bool] = None  # determined lazily
 
     # ------------------------------------------------------------------
     # Strategy detection
@@ -139,7 +139,7 @@ class XiaohongshuAdapter(BaseAdapter):
     # ------------------------------------------------------------------
     # Public interface
     # ------------------------------------------------------------------
-    def publish(self, content: Any, images: list[str] | None = None) -> dict:
+    def publish(self, content: Any, images: Optional[list[str]] = None) -> dict:
         """Publish a note to Xiaohongshu.
 
         *content* is expected to be a ``dict`` with keys:
@@ -185,7 +185,7 @@ class XiaohongshuAdapter(BaseAdapter):
         except Exception:
             return False
 
-    def upload_image(self, image_path: str) -> str | None:
+    def upload_image(self, image_path: str) -> Optional[str]:
         path = Path(image_path)
         if not path.exists():
             return None
@@ -223,7 +223,7 @@ class XiaohongshuAdapter(BaseAdapter):
         except Exception as exc:
             return {"success": False, "error": str(exc)}
 
-    def _upload_image_mcp(self, path: Path) -> str | None:
+    def _upload_image_mcp(self, path: Path) -> Optional[str]:
         try:
             import base64
 
@@ -275,7 +275,7 @@ class XiaohongshuAdapter(BaseAdapter):
         except Exception as exc:
             return {"success": False, "error": str(exc)}
 
-    def _upload_image_direct(self, path: Path) -> str | None:
+    def _upload_image_direct(self, path: Path) -> Optional[str]:
         api_path = "/api/sns/web/v1/upload/image"
         headers = {**self._web_headers(), **self._generate_xhs_sign(api_path)}
         # Remove JSON content-type for multipart upload

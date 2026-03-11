@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import re
 import textwrap
-from typing import Any
+from typing import Any, Optional, Union
 
 
 class ContentAdapter:
@@ -48,7 +48,7 @@ class ContentAdapter:
     # ==================================================================
     # Twitter / X
     # ==================================================================
-    def _adapt_twitter(self, content: str, *, as_thread: bool = False) -> str | list[str]:
+    def _adapt_twitter(self, content: str, *, as_thread: bool = False) -> Union[str, list[str]]:
         """Adapt content for X / Twitter (max 280 chars per tweet)."""
         clean = self._strip_markdown(content).strip()
         hashtags = self._extract_hashtags(content)

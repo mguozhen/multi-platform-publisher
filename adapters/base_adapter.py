@@ -5,7 +5,7 @@ the abstract methods defined here.
 """
 
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, Optional, Union
 
 
 class BaseAdapter(ABC):
@@ -25,7 +25,7 @@ class BaseAdapter(ABC):
     # Abstract interface
     # ------------------------------------------------------------------
     @abstractmethod
-    def publish(self, content: Any, images: list[str] | None = None) -> dict:
+    def publish(self, content: Any, images: Optional[list[str]] = None) -> dict:
         """Publish *content* (already adapted) to the platform.
 
         Parameters
@@ -33,13 +33,13 @@ class BaseAdapter(ABC):
         content : Any
             Platform-specific content payload (string, list of strings for
             threads, HTML string, etc.).
-        images : list[str] | None
+        images : Optional[list[str]]
             Paths to processed image files.
 
         Returns
         -------
         dict
-            ``{"success": bool, "message": str, "url": str | None, "error": str | None}``
+            ``{"success": bool, "message": str, "url": Optional[str], "error": Optional[str]}``
         """
 
     @abstractmethod
@@ -47,7 +47,7 @@ class BaseAdapter(ABC):
         """Return ``True`` if the stored credentials are valid."""
 
     @abstractmethod
-    def upload_image(self, image_path: str) -> str | None:
+    def upload_image(self, image_path: str) -> Optional[str]:
         """Upload an image and return a platform-specific media identifier
         (media_id, asset URN, media_id on WeChat, etc.).  Return ``None``
         on failure."""

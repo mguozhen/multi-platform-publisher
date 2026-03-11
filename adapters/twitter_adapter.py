@@ -27,7 +27,7 @@ import hmac
 import base64
 import urllib.parse
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional, Union
 
 import requests
 
@@ -48,7 +48,7 @@ class TwitterAdapter(BaseAdapter):
     MEDIA_UPLOAD_URL = "https://upload.twitter.com/1.1/media/upload.json"
     VERIFY_URL = "https://api.x.com/2/users/me"
 
-    def __init__(self, config: dict | None = None):
+    def __init__(self, config: Optional[dict] = None):
         super().__init__(config or {})
         self.api_key = self.config.get("api_key") or os.environ.get("TWITTER_API_KEY", "")
         self.api_secret = self.config.get("api_secret") or os.environ.get("TWITTER_API_SECRET", "")
@@ -94,7 +94,7 @@ class TwitterAdapter(BaseAdapter):
         ).digest()
         return base64.b64encode(signature).decode("utf-8")
 
-    def _oauth_header(self, method: str, url: str, extra_params: dict | None = None) -> str:
+    def _oauth_header(self, method: str, url: str, extra_params: Optional[dict] = None) -> str:
         """Build the ``Authorization: OAuth …`` header value."""
         oauth_params = {
             "oauth_consumer_key": self.api_key,
@@ -117,9 +117,9 @@ class TwitterAdapter(BaseAdapter):
         self,
         method: str,
         url: str,
-        json_body: dict | None = None,
-        data: dict | None = None,
-        files: dict | None = None,
+        json_body: Optional[dict] = None,
+        data: Optional[dict] = None,
+        files: Optional[dict] = None,
     ) -> requests.Response:
         """Send an OAuth 1.0a-signed request."""
         extra = {}
@@ -141,7 +141,7 @@ class TwitterAdapter(BaseAdapter):
     # ------------------------------------------------------------------
     # Public interface
     # ------------------------------------------------------------------
-    def publish(self, content: Any, images: list[str] | None = None) -> dict:
+    def publish(self, content: Any, images: Optional[list[str]] = None) -> dict:
         """Publish a tweet or thread.
 
         *content* may be a ``str`` (single tweet) or ``list[str]`` (thread).
@@ -161,7 +161,7 @@ class TwitterAdapter(BaseAdapter):
         resp = self._request("GET", self.VERIFY_URL)
         return resp.status_code == 200
 
-    def upload_image(self, image_path: str) -> str | None:
+    def upload_image(self, image_path: str) -> Optional[str]:
         path = Path(image_path)
         if not path.exists():
             return None
@@ -200,7 +200,7 @@ class TwitterAdapter(BaseAdapter):
     def _publish_thread(self, tweets: list[str], media_ids: list[str]) -> dict:
         """Post a thread by chaining ``reply_to`` tweet IDs."""
         published: list[dict] = []
-        previous_id: str | None = None
+        previous_id: Optional[str] = None
 
         for idx, text in enumerate(tweets):
             payload: dict[str, Any] = {"text": text}

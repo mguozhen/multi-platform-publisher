@@ -12,7 +12,7 @@ import os
 import shutil
 import tempfile
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional, Union
 
 # Pillow is an optional dependency – degrade gracefully.
 try:
@@ -32,7 +32,7 @@ class ImageHandler:
     MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB
     ALLOWED_FORMATS = {"JPEG", "PNG", "GIF", "WEBP"}
 
-    def __init__(self, temp_dir: str | None = None):
+    def __init__(self, temp_dir: Optional[str] = None):
         self.temp_dir = temp_dir or tempfile.mkdtemp(prefix="mpp_images_")
 
     # ------------------------------------------------------------------
@@ -51,7 +51,7 @@ class ImageHandler:
                 processed.append(result)
         return processed
 
-    def process_image(self, image_path: str) -> str | None:
+    def process_image(self, image_path: str) -> Optional[str]:
         """Process a single image.  Returns the (possibly new) path or
         ``None`` if the file is invalid."""
         path = Path(image_path)
@@ -91,7 +91,7 @@ class ImageHandler:
     # Helpers
     # ------------------------------------------------------------------
     @staticmethod
-    def get_image_info(image_path: str) -> dict[str, Any] | None:
+    def get_image_info(image_path: str) -> Optional[dict[str, Any]]:
         """Return basic metadata about an image."""
         if not HAS_PIL:
             return {"path": image_path, "size": os.path.getsize(image_path)}

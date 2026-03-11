@@ -21,7 +21,7 @@ from __future__ import annotations
 import json
 import os
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional, Union
 
 import requests
 
@@ -42,7 +42,7 @@ class LinkedInAdapter(BaseAdapter):
     IMAGES_URL = f"{BASE_URL}/rest/images"
     USERINFO_URL = f"{BASE_URL}/v2/userinfo"
 
-    def __init__(self, config: dict | None = None):
+    def __init__(self, config: Optional[dict] = None):
         super().__init__(config or {})
         self.access_token = self.config.get("access_token") or os.environ.get(
             "LINKEDIN_ACCESS_TOKEN", ""
@@ -59,11 +59,11 @@ class LinkedInAdapter(BaseAdapter):
     # ------------------------------------------------------------------
     # HTTP helpers
     # ------------------------------------------------------------------
-    def _headers(self, extra: dict | None = None) -> dict:
+    def _headers(self, extra: Optional[dict] = None) -> dict:
         h = {
             "Authorization": f"Bearer {self.access_token}",
             "X-Restli-Protocol-Version": "2.0.0",
-            "LinkedIn-Version": "202402",
+            "LinkedIn-Version": "202503",
             "Content-Type": "application/json",
         }
         if extra:
@@ -83,7 +83,7 @@ class LinkedInAdapter(BaseAdapter):
     # ------------------------------------------------------------------
     # Public interface
     # ------------------------------------------------------------------
-    def publish(self, content: Any, images: list[str] | None = None) -> dict:
+    def publish(self, content: Any, images: Optional[list[str]] = None) -> dict:
         """Publish a post (or article) to LinkedIn.
 
         *content* is expected to be a ``str`` – the adapted post body.
@@ -112,11 +112,19 @@ class LinkedInAdapter(BaseAdapter):
 
         # Attach images
         if image_urns:
-            payload["content"] = {
-                "multiImage": {
-                    "images": [{"id": urn, "altText": ""} for urn in image_urns],
+            if len(image_urns) == 1:
+                payload["content"] = {
+                    "media": {
+                        "id": image_urns[0],
+                        "title": "OpenClaw social media skill",
+                    }
                 }
-            }
+            else:
+                payload["content"] = {
+                    "multiImage": {
+                        "images": [{"id": urn, "altText": ""} for urn in image_urns],
+                    }
+                }
 
         resp = requests.post(
             self.POSTS_URL,
@@ -142,7 +150,7 @@ class LinkedInAdapter(BaseAdapter):
         resp = requests.get(self.USERINFO_URL, headers=self._headers(), timeout=30)
         return resp.status_code == 200
 
-    def upload_image(self, image_path: str) -> str | None:
+    def upload_image(self, image_path: str) -> Optional[str]:
         """Upload an image to LinkedIn and return the image URN.
 
         The flow is:
