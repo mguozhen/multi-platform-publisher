@@ -176,8 +176,17 @@ class ContentAdapter:
         return text.strip()
 
     @staticmethod
+    def _strip_frontmatter(content: str) -> str:
+        """Remove leading YAML frontmatter if present."""
+        return re.sub(r"\A---\s*\n.*?\n---\s*\n", "", content, flags=re.DOTALL)
+
+    @staticmethod
     def _extract_title(content: str) -> str:
-        """Extract the first heading or first line as a title."""
+        """Extract YAML title, then heading, then first line."""
+        fm = re.search(r'\A---\s*\n.*?^title:\s*["\']?(.+?)["\']?\s*$.*?^---\s*$', content, re.MULTILINE | re.DOTALL)
+        if fm:
+            return fm.group(1).strip()
+        content = ContentAdapter._strip_frontmatter(content)
         match = re.search(r"^#{1,6}\s+(.+)$", content, re.MULTILINE)
         if match:
             return match.group(1).strip()
@@ -193,6 +202,7 @@ class ContentAdapter:
     @staticmethod
     def _generate_digest(content: str, max_len: int = 120) -> str:
         """Generate a short digest / summary from the first paragraph."""
+        content = ContentAdapter._strip_frontmatter(content)
         clean = re.sub(r"^#{1,6}\s+.+$", "", content, flags=re.MULTILINE).strip()
         first_para = clean.split("\n\n")[0] if "\n\n" in clean else clean
         first_para = re.sub(r"\s+", " ", first_para).strip()
@@ -207,7 +217,7 @@ class ContentAdapter:
         For production use, consider a full Markdown parser such as
         ``markdown`` or ``mistune``.
         """
-        html = content
+        html = ContentAdapter._strip_frontmatter(content)
 
         # Headings
         for level in range(6, 0, -1):

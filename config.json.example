@@ -6,8 +6,11 @@
     "access_token_secret": "YOUR_TWITTER_ACCESS_TOKEN_SECRET"
   },
   "linkedin": {
-    "access_token": "YOUR_LINKEDIN_ACCESS_TOKEN",
-    "person_urn": "urn:li:person:YOUR_PERSON_ID"
+    "access_token": "YOUR_L...OKEN",
+    "person_urn": "urn:li:person:YOUR_PERSON_ID",
+    "client_id": "YOUR_LINKEDIN_CLIENT_ID",
+    "client_secret": "YOUR_LINKEDIN_PRIMARY_SECRET",
+    "client_secret_secondary": "YOUR_LINKEDIN_SECONDARY_SECRET"
   },
   "wechat": {
     "appid": "YOUR_WECHAT_APPID",

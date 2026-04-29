@@ -10,6 +10,16 @@ Required environment variables
 - ``LINKEDIN_PERSON_URN``    – (Optional) Author URN, e.g. ``urn:li:person:abc123``.
                                If omitted the adapter fetches it via ``/v2/userinfo``.
 
+Optional OAuth app variables
+----------------------------
+- ``LINKEDIN_CLIENT_ID``
+- ``LINKEDIN_CLIENT_SECRET``
+- ``LINKEDIN_CLIENT_SECRET_SECONDARY``
+
+These are not required for day to day publishing when a valid access token already
+exists, but they are loaded so the current publishing flow can share the same
+credential source when token refresh or auth code exchange support is added.
+
 References
 ----------
 - Posts API: https://learn.microsoft.com/en-us/linkedin/marketing/community-management/shares/posts-api
@@ -21,7 +31,7 @@ from __future__ import annotations
 import json
 import os
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Any
 
 import requests
 
@@ -42,7 +52,7 @@ class LinkedInAdapter(BaseAdapter):
     IMAGES_URL = f"{BASE_URL}/rest/images"
     USERINFO_URL = f"{BASE_URL}/v2/userinfo"
 
-    def __init__(self, config: Optional[dict] = None):
+    def __init__(self, config: dict | None = None):
         super().__init__(config or {})
         self.access_token = self.config.get("access_token") or os.environ.get(
             "LINKEDIN_ACCESS_TOKEN", ""
@@ -50,6 +60,15 @@ class LinkedInAdapter(BaseAdapter):
         self.person_urn = self.config.get("person_urn") or os.environ.get(
             "LINKEDIN_PERSON_URN", ""
         )
+        self.client_id = self.config.get("client_id") or os.environ.get(
+            "LINKEDIN_CLIENT_ID", ""
+        )
+        self.client_secret = self.config.get("client_secret") or os.environ.get(
+            "LINKEDIN_CLIENT_SECRET", ""
+        )
+        self.client_secret_secondary = self.config.get(
+            "client_secret_secondary"
+        ) or os.environ.get("LINKEDIN_CLIENT_SECRET_SECONDARY", "")
 
         if not self.access_token:
             raise ValueError(
@@ -59,11 +78,11 @@ class LinkedInAdapter(BaseAdapter):
     # ------------------------------------------------------------------
     # HTTP helpers
     # ------------------------------------------------------------------
-    def _headers(self, extra: Optional[dict] = None) -> dict:
+    def _headers(self, extra: dict | None = None) -> dict:
         h = {
             "Authorization": f"Bearer {self.access_token}",
             "X-Restli-Protocol-Version": "2.0.0",
-            "LinkedIn-Version": "202503",
+            "LinkedIn-Version": "202504",
             "Content-Type": "application/json",
         }
         if extra:
@@ -83,7 +102,7 @@ class LinkedInAdapter(BaseAdapter):
     # ------------------------------------------------------------------
     # Public interface
     # ------------------------------------------------------------------
-    def publish(self, content: Any, images: Optional[list[str]] = None) -> dict:
+    def publish(self, content: Any, images: list[str] | None = None) -> dict:
         """Publish a post (or article) to LinkedIn.
 
         *content* is expected to be a ``str`` – the adapted post body.
@@ -116,7 +135,7 @@ class LinkedInAdapter(BaseAdapter):
                 payload["content"] = {
                     "media": {
                         "id": image_urns[0],
-                        "title": "OpenClaw social media skill",
+                        "title": "",
                     }
                 }
             else:
@@ -150,7 +169,7 @@ class LinkedInAdapter(BaseAdapter):
         resp = requests.get(self.USERINFO_URL, headers=self._headers(), timeout=30)
         return resp.status_code == 200
 
-    def upload_image(self, image_path: str) -> Optional[str]:
+    def upload_image(self, image_path: str) -> str | None:
         """Upload an image to LinkedIn and return the image URN.
 
         The flow is:

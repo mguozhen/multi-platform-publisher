@@ -121,13 +121,7 @@ def cmd_publish(args: argparse.Namespace) -> int:
     for platform in platforms:
         print(f"\n📤 [{platform.upper()}] Publishing…")
 
-        adapter = build_adapter(platform, config)
-        if adapter is None:
-            results[platform] = {"success": False, "error": "Missing credentials"}
-            exit_code = 1
-            continue
-
-        # Adapt content for this platform
+        # Adapt content first (doesn't need credentials)
         adapted = content_adapter.adapt(
             raw_content,
             platform,
@@ -144,6 +138,13 @@ def cmd_publish(args: argparse.Namespace) -> int:
             else:
                 print(f"   {adapted}")
             results[platform] = {"success": True, "dry_run": True}
+            continue
+
+        adapter = build_adapter(platform, config)
+        if adapter is None:
+            results[platform] = {"success": False, "error": "Missing credentials"}
+            print(f"   ❌ Missing credentials")
+            exit_code = 1
             continue
 
         try:

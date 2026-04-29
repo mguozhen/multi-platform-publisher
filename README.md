@@ -71,12 +71,20 @@ export TWITTER_ACCESS_TOKEN="..."
 export TWITTER_ACCESS_TOKEN_SECRET="..."
 
 # LinkedIn
-export LINKEDIN_ACCESS_TOKEN="..."
+export LINKEDIN_ACCESS_TOKEN="***"
 export LINKEDIN_PERSON_URN="urn:li:person:..." # Optional, will be auto-detected
+export LINKEDIN_CLIENT_ID="your-client-id"     # Optional, for OAuth app wiring
+export LINKEDIN_CLIENT_SECRET="your-primary-secret"
+export LINKEDIN_CLIENT_SECRET_SECONDARY="your-secondary-secret"
+# If LINKEDIN_ACCESS_TOKEN accidentally contains a client secret that starts with WPL_AP1,
+# the loader now ignores it and falls back to the token stored in openclaw.json.
+# The adapter also uses LinkedIn-Version 202504 and sends a single-image payload when only one image is attached.
 
 # WeChat Official Account
 export WECHAT_APPID="..."
-export WECHAT_APPSECRET="..."
+export WECHAT_APPSECRET="***"
+# Note: WeChat draft cover images must use permanent thumb media.
+# Inline article images should use local file paths so the adapter can upload them to mmbiz CDN automatically.
 
 # Xiaohongshu
 export XHS_COOKIE="..." # Your browser cookie

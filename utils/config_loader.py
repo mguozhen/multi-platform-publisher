@@ -34,6 +34,9 @@ class ConfigLoader:
         "linkedin": {
             "access_token": "LINKEDIN_ACCESS_TOKEN",
             "person_urn": "LINKEDIN_PERSON_URN",
+            "client_id": "LINKEDIN_CLIENT_ID",
+            "client_secret": "LINKEDIN_CLIENT_SECRET",
+            "client_secret_secondary": "LINKEDIN_CLIENT_SECRET_SECONDARY",
         },
         "wechat": {
             "appid": "WECHAT_APPID",
@@ -93,6 +96,10 @@ class ConfigLoader:
             section: dict[str, str] = {}
             for key, env_var in mapping.items():
                 val = os.environ.get(env_var, "")
+                if platform == "linkedin" and key == "access_token" and val.startswith("WPL_AP1."):
+                    # Common misconfiguration: a LinkedIn client secret exported as the access token.
+                    # Ignore it so the valid token from openclaw.json can win.
+                    val = ""
                 if val:
                     section[key] = val
             if section:

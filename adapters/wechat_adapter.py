@@ -21,7 +21,8 @@ import json
 import os
 import time
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Any
+import re
 
 import requests
 
@@ -38,7 +39,7 @@ class WeChatAdapter(BaseAdapter):
 
     BASE_URL = "https://api.weixin.qq.com/cgi-bin"
 
-    def __init__(self, config: Optional[dict] = None):
+    def __init__(self, config: dict | None = None):
         super().__init__(config or {})
         self.appid = self.config.get("appid") or os.environ.get("WECHAT_APPID", "")
         self.appsecret = self.config.get("appsecret") or os.environ.get("WECHAT_APPSECRET", "")
@@ -84,7 +85,7 @@ class WeChatAdapter(BaseAdapter):
     # ------------------------------------------------------------------
     # Public interface
     # ------------------------------------------------------------------
-    def publish(self, content: Any, images: Optional[list[str]] = None) -> dict:
+    def publish(self, content: Any, images: list[str] | None = None) -> dict:
         """Create a draft article on the WeChat Official Account.
 
         *content* is expected to be a ``dict`` with keys:
@@ -106,16 +107,19 @@ class WeChatAdapter(BaseAdapter):
         if images:
             thumb_media_id = self.upload_image(images[0]) or ""
 
+        body_html = self._prepare_body_images(content.get("content", ""))
+
         article = {
             "title": content.get("title", "Untitled"),
             "author": content.get("author", ""),
             "digest": content.get("digest", ""),
-            "content": content.get("content", ""),
+            "content": body_html,
             "content_source_url": content.get("source_url", ""),
-            "thumb_media_id": thumb_media_id,
             "need_open_comment": 0,
             "only_fans_can_comment": 0,
         }
+        if thumb_media_id:
+            article["thumb_media_id"] = thumb_media_id
 
         payload = {"articles": [article]}
 
@@ -148,22 +152,31 @@ class WeChatAdapter(BaseAdapter):
         except Exception:
             return False
 
-    def upload_image(self, image_path: str) -> Optional[str]:
-        """Upload a temporary image material and return its ``media_id``.
+    def upload_image(self, image_path: str) -> str | None:
+        """Upload a permanent *thumb* material and return its ``media_id``.
 
-        The material is valid for 3 days on WeChat's servers.
+        WeChat draft articles require ``thumb_media_id`` from the permanent
+        material API, not the temporary ``/media/upload`` image endpoint.
         """
         path = Path(image_path)
         if not path.exists():
             return None
 
         token = self._get_access_token()
+        content_type = "image/jpeg"
+        suffix = path.suffix.lower()
+        if suffix == ".png":
+            content_type = "image/png"
+        elif suffix == ".gif":
+            content_type = "image/gif"
+        elif suffix == ".webp":
+            content_type = "image/webp"
 
         with open(path, "rb") as f:
             resp = requests.post(
                 f"{self.BASE_URL}/material/add_material",
-                params={"access_token": token, "type": "image"},
-                files={"media": (path.name, f, "image/jpeg")},
+                params={"access_token": token, "type": "thumb"},
+                files={"media": (path.name, f, content_type)},
                 timeout=120,
             )
 
@@ -175,7 +188,25 @@ class WeChatAdapter(BaseAdapter):
     # ------------------------------------------------------------------
     # Extended helpers
     # ------------------------------------------------------------------
-    def upload_permanent_image(self, image_path: str) -> Optional[str]:
+    def _prepare_body_images(self, html: str) -> str:
+        """Upload local inline images to WeChat CDN and replace src URLs."""
+        if not html:
+            return html
+
+        def repl(match: re.Match) -> str:
+            src = match.group(1)
+            if src.startswith("http://mmbiz.qpic.cn") or src.startswith("https://mmbiz.qpic.cn"):
+                return match.group(0)
+            if src.startswith("http://") or src.startswith("https://"):
+                return match.group(0)
+            uploaded = self.upload_permanent_image(src)
+            if not uploaded:
+                raise RuntimeError(f"WeChat body image upload failed for: {src}")
+            return match.group(0).replace(src, uploaded)
+
+        return re.sub(r'<img[^>]+src="([^"]+)"', repl, html)
+
+    def upload_permanent_image(self, image_path: str) -> str | None:
         """Upload a *permanent* image material (for article body ``<img>`` tags).
 
         Returns the image URL on WeChat CDN.

@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 Base adapter interface for social media platforms.
 All platform adapters must inherit from ``BaseAdapter`` and implement
