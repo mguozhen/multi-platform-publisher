@@ -9,3 +9,12 @@ build/
 .pytest_cache/
 .mypy_cache/
 *.tmp
+
+# super-writer runtime / secrets
+super-writer/**/.env
+super-writer/**/queue.json
+super-writer/**/*state.json
+super-writer/**/discovered_chats.json
+super-writer/**/*.log
+super-writer/**/telegram_feedback.jsonl
+.gstack/
