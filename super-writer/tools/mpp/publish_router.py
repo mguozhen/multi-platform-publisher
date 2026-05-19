@@ -44,6 +44,11 @@ def publish(platform: str, text: str, *, title: str | None = None,
             return _publish_qiita(text, title=title, tags=tags or [])
         if platform == "wechat":
             return _publish_wechat(text, title=title)
+        if platform in ("xhs", "xiaohongshu", "redbook"):
+            return {"ok": False,
+                    "error": ("XHS 永久禁用自动发布(账号已被预警)。"
+                              "改用 file-delivery 流程:caption.txt + 图片包 → 手机手动发。"
+                              "playbook 见 ~/self-media/playbooks/xiaohongshu.md")}
         if platform in ("hackernews", "hn"):
             return _publish_hn(text, title=title, link=link)
         if platform == "reddit":
