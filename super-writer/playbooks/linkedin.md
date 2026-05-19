@@ -45,6 +45,19 @@ hook → 做了什么 → 1 个可迁移的 takeaway
 风险: 真实数字需先脱敏
 ```
 
+## 推广开源项目（2026-05-18 实战定型，过审版）
+
+发开源项目一律走 **variant A 观察姿态**，不做产品 pitch：
+- hook 用一个反差数字 / 断言（例：写一篇文章 60 分钟，发出去 90 分钟），不是「我做了个工具」
+- 工具是观察的**落点**，不是主语 —— 正文重心是一个判断（哪半工作是 tax），工具只在后段登场
+- 收尾落在原理（「执行变便宜 → 把 tax 那半交出去」），命令式，不在正文喊「去 star」
+
+链接铁律（这是关键）：
+- **GitHub 链接绝不进正文** —— LinkedIn 算法压站外链接帖，曝光腰斩
+- 链接放**第一条评论**：发完用 `socialActions/{share}/comments` API 补 comment
+  （`li-post.py` 不支持发评论，需单独调 API：`POST /v2/socialActions/{urlencoded-share-urn}/comments`，body `{actor, message:{text}}`）
+- 求 star 的话也放进第一条评论，不放正文
+
 ## 排版规则（LinkedIn 算法）
 
 - 前 2 行是生死线（折叠前可见）— 必须是 hook
