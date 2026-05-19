@@ -1,6 +1,6 @@
 ---
 name: multi-platform-publisher
-description: "Publish content to X/Twitter, LinkedIn, WeChat Official Account, and Xiaohongshu with one command. Automatically adapts content format for each platform — threads for Twitter, professional articles for LinkedIn, HTML drafts for WeChat, emoji notes for Xiaohongshu. Triggers: publish content, social media, twitter post, linkedin post, wechat article, xiaohongshu note, cross-platform publish, multi-platform"
+description: "Publish content to 13 platforms — X/Twitter, LinkedIn, WeChat, Xiaohongshu, Dev.to, Qiita, YouTube, Hacker News, Reddit, note.com, Substack, Douyin, Channels — with one command. Automatically adapts content format per platform: threads for Twitter, professional articles for LinkedIn, HTML drafts for WeChat, emoji notes for Xiaohongshu. Bundles the super-writer content pipeline (topic selection, AI drafting, human review). Triggers: publish content, social media, twitter post, linkedin post, wechat article, xiaohongshu note, cross-platform publish, multi-platform"
 allowed-tools: Bash
 metadata:
   openclaw:
@@ -9,7 +9,7 @@ metadata:
 
 # Multi-Platform Social Media Publisher
 
-Publish content to multiple social media platforms with a single command. Supports X/Twitter, LinkedIn, WeChat Official Account (微信公众号), and Xiaohongshu (小红书).
+Publish content to multiple social media platforms with a single command. The publisher (`main.py`) covers X/Twitter, LinkedIn, WeChat Official Account (微信公众号), and Xiaohongshu (小红书) over official APIs. The bundled **super-writer** pipeline (`super-writer/`) adds Dev.to, Qiita, YouTube, Hacker News, Reddit, note.com, Substack, Douyin, and Channels — plus topic selection, AI drafting, and human-in-the-loop review.
 
 ## Prerequisites
 

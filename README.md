@@ -1,98 +1,195 @@
-# OpenClaw Skill: Multi-Platform Publisher
+<h1 align="center">Multi-Platform Publisher</h1>
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+<p align="center">
+  <strong>One command. Every platform. Your content, auto-adapted.</strong><br>
+  <em>Write once — get a Twitter thread, a LinkedIn post, a WeChat HTML draft, a Xiaohongshu note,<br>
+  and a full self-media content pipeline behind it. Agent-native, 13 platforms, MIT.</em>
+</p>
 
-An OpenClaw Skill to publish content to multiple social media platforms with a single command. This skill automatically adapts your content for each platform's constraints and audience, supporting text, images, and platform-specific features like Twitter/X threads.
+<p align="center">
+  <a href="#quick-start"><img src="https://img.shields.io/badge/setup-60s-brightgreen?style=flat-square" alt="60s Setup"></a>
+  <a href="#supported-platforms"><img src="https://img.shields.io/badge/platforms-13-FF6A00?style=flat-square" alt="13 platforms"></a>
+  <a href="#the-super-writer-pipeline"><img src="https://img.shields.io/badge/pipeline-super--writer-blueviolet?style=flat-square" alt="super-writer pipeline"></a>
+  <img src="https://img.shields.io/badge/python-%E2%89%A53.8-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python 3.8+">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="MIT"></a>
+</p>
 
-**Author**: mguozhen
+---
 
-## Overview
+## TL;DR
 
-The **Multi-Platform Publisher** skill streamlines your social media workflow by providing a unified interface to post updates across different channels. Instead of manually logging into each platform, adapting your content, and uploading media, you can do it all with one command from your OpenClaw agent.
+One piece of content in. Thirteen platform-native posts out.
 
-The skill is designed to be highly configurable and extensible, using a modular adapter architecture that makes it easy to add new platforms in the future.
+```
+                                  ┌───────────────────────────────┐
+   ┌──────────────┐               │  content adaptation engine    │
+   │  Markdown    │──┐            │  per-platform: length, format, │
+   │  or inline   │  │            │  tone, hashtags, threads       │
+   └──────────────┘  ├────────────▶───────────────────────────────┤
+   ┌──────────────┐  │            │  API adapters   browser auto   │
+   │  + images    │──┘            │  X · LinkedIn   HN · Reddit    │
+   └──────────────┘               │  WeChat · XHS   note · Substack│
+                                  └───────────────┬───────────────┘
+                                                  │
+        ┌─────────────────────────────────────────┼─────────────────────┐
+        ▼                     ▼                   ▼                     ▼
+   X / Twitter thread    LinkedIn post     WeChat HTML draft      Xiaohongshu note
+   Dev.to · Qiita        YouTube           Hacker News · Reddit   note.com · Substack
+```
 
-## Features
+- **Inputs** — a Markdown file or inline text, optional images
+- **Engine** — `content_adapter.py` reshapes per platform (char limits, threads, HTML, emoji, tags)
+- **Two layers** — a one-command **publisher** (`main.py` + API adapters) **and** the **super-writer** content pipeline (topic selection → AI draft → human review → publish)
 
-- **Multi-Platform Publishing**: Post to X/Twitter, LinkedIn, WeChat Official Account, and Xiaohongshu simultaneously.
-- **Content Adaptation Engine**: Automatically reformats content for each platform's character limits, formatting rules, and tone.
-- **Image Uploads**: Attach images to your posts on all supported platforms.
-- **Platform-Specific Features**: Create Twitter/X threads for long-form content.
-- **Flexible Configuration**: Configure API credentials securely via environment variables or your global `openclaw.json` file.
-- **Command-Line Interface**: A simple and powerful CLI for publishing, validating credentials, and listing platforms.
-- **Dry-Run Mode**: Preview how your content will be adapted and sent to each platform without actually publishing.
+---
 
-## Supported Platforms
+## Quick start
 
-The skill currently supports the following platforms, each with a dedicated adapter to handle its specific API and authentication method.
+### Option A — One-command publish (recommended)
 
-| Platform | Auth Method | Features |
-|:---|:---|:---|
-| **X/Twitter** | OAuth 1.0a | Tweets, Threads, Image Uploads |
-| **LinkedIn** | OAuth 2.0 | Articles, Posts, Image Uploads |
-| **WeChat Official Account** | API Token | Draft Creation, Image Uploads, HTML Content |
-| **Xiaohongshu (小红书)** | MCP / Cookie | Note Publishing, Image Uploads |
+```bash
+# 1. Install
+pip3 install -r requirements.txt
 
-## Installation
+# 2. Set credentials for the platforms you want (env vars or ~/.openclaw/openclaw.json)
+export TWITTER_API_KEY="..."   TWITTER_API_SECRET="..."
+export TWITTER_ACCESS_TOKEN="..."   TWITTER_ACCESS_TOKEN_SECRET="..."
+export LINKEDIN_ACCESS_TOKEN="..."
+export WECHAT_APPID="..."   WECHAT_APPSECRET="..."
+export XHS_COOKIE="..."
 
-1.  **Clone the repository** or place the `multi-platform-publisher` directory into your OpenClaw skills folder:
-    -   **Shared Skill**: `~/.openclaw/skills/`
-    -   **Workspace Skill**: `<your_workspace>/skills/`
+# 3. Publish
+python3 main.py publish --file article.md --platforms all
+```
 
-2.  **Install Python dependencies**:
+### Option B — Preview first (dry run)
 
-    ```bash
-    pip3 install -r /path/to/multi-platform-publisher/requirements.txt
-    ```
+```bash
+python3 main.py publish --content "My post about #AI" --dry-run
+```
 
-    Or, if you have `uv` installed:
+Shows exactly how the content will be reshaped for each platform — no posting.
 
-    ```bash
-    uv pip install -r /path/to/multi-platform-publisher/requirements.txt
-    ```
+### Option C — Ask your agent
+
+In OpenClaw / Hermes / Claude Code, this ships as a Skill — just say:
+
+> Publish `article.md` to Twitter and LinkedIn, and put a draft in WeChat.
+
+The agent calls `main.py` and hands you the results.
+
+### Utility commands
+
+```bash
+python3 main.py list-platforms   # show platforms + credential status
+python3 main.py validate         # check credentials for every configured platform
+```
+
+---
+
+## Supported platforms
+
+Two surfaces. The **publisher** (`main.py`) covers four platforms over official APIs. The **super-writer pipeline** adds nine more through dedicated publishers.
+
+| Platform | Surface | Auth | Output |
+|---|---|---|---|
+| **X / Twitter** | publisher | OAuth 1.0a | Tweets, threads, image + video upload |
+| **LinkedIn** | publisher | OAuth 2.0 | Posts, articles, images |
+| **WeChat Official Account** | publisher | API token | HTML article → draft box |
+| **Xiaohongshu (小红书)** | publisher | Cookie | Image-text note |
+| **Dev.to** | super-writer | REST API | English dev article |
+| **Qiita** | super-writer | REST API | Japanese dev article |
+| **YouTube** | super-writer | Data API v3 | Video + Shorts |
+| **Hacker News** | super-writer | browser automation | Link / text submission |
+| **Reddit** | super-writer | browser automation | Subreddit post |
+| **note.com** | super-writer | browser automation | Japanese essay |
+| **Substack** | super-writer | browser automation | English long-form + Notes |
+| **抖音 / Douyin** | super-writer | browser automation | Short video |
+| **视频号 / Channels** | super-writer | manual | 1–3 min video |
+
+> Publishing red lines are respected: WeChat stops at the **draft box** (never auto-publishes), Xiaohongshu and Reddit run **human-in-the-loop**, and risky platforms surface a confirmation step. See `super-writer/playbooks/`.
+
+---
+
+## Content adaptation
+
+The same source is reshaped, not just truncated:
+
+- **X / Twitter** — strips Markdown, splits into 280-char tweets, builds numbered threads
+- **LinkedIn** — professional register, clean paragraphs, up to 3,000 chars
+- **WeChat** — styled HTML article rendered into a draft (manual publish in the dashboard)
+- **Xiaohongshu** — casual tone, emoji injection, topic tags, 1,000-char cap
+- **Dev.to / Qiita** — front-matter + tags, English / Japanese dev framing
+- **Substack / note.com** — long-form essay + short Notes
+
+---
+
+## The super-writer pipeline
+
+`super-writer/` is a complete one-person self-media production line:
+
+```
+topic gacha  →  AI draft (persona-locked)  →  cover + layout  →  Telegram review  →  multi-platform publish
+```
+
+- `super-writer/tools/gacha.py` — topic selector, aggregates 5 sources with scoring
+- `super-writer/tools/telegram-bridge/` — human-in-the-loop review bridge + per-platform publishers
+- `super-writer/tools/{hn,note,reddit}_publish.py` — browser-automation publishers for API-less platforms
+- `super-writer/playbooks/` — 15 platform / content-type writing playbooks
+- `super-writer/platform-roadmap.md` — live / queued / manual platform status
+- `super-writer/persona.md` — account persona
+
+---
+
+## vs. the alternatives
+
+| | **multi-platform-publisher** | Buffer / Hootsuite | Typefully | Manual posting |
+|---|---|---|---|---|
+| **Per-platform content adaptation** | ✅ reshapes tone + format | ⚠️ same text everywhere | ⚠️ Twitter-only | ✅ but by hand |
+| **Agent-callable** | ✅ Skill / CLI | ❌ | ❌ | ❌ |
+| **WeChat / Xiaohongshu / Dev.to / Qiita** | ✅ | ❌ | ❌ | ✅ |
+| **Content pipeline (topic → draft → review)** | ✅ super-writer | ❌ | ❌ | ❌ |
+| **Cost** | free, MIT | $6–99/mo | $12.50/mo | free |
+| **Open source** | ✅ | ❌ | ❌ | — |
+
+---
+
+## Architecture
+
+```
+multi-platform-publisher/
+├── main.py                    # CLI entrypoint + orchestrator
+├── adapters/
+│   ├── base_adapter.py        # abstract base: publish() / validate() / upload_image()
+│   ├── twitter_adapter.py     # X / Twitter — OAuth 1.0a
+│   ├── linkedin_adapter.py    # LinkedIn — OAuth 2.0
+│   ├── wechat_adapter.py      # WeChat Official Account — API token
+│   └── xiaohongshu_adapter.py # Xiaohongshu — cookie
+├── utils/
+│   ├── config_loader.py       # env > openclaw.json > config.json
+│   ├── content_adapter.py     # per-platform content transformation
+│   ├── image_handler.py       # resize / validate before upload
+│   └── logger.py
+├── super-writer/              # one-person self-media content pipeline
+│   ├── tools/                 # gacha, telegram-bridge, per-platform publishers
+│   ├── playbooks/             # 15 writing playbooks
+│   ├── platform-roadmap.md
+│   └── persona.md
+├── podcasts/                  # sample podcast audio
+├── tests/
+├── SKILL.md                   # OpenClaw skill definition
+└── manifest.json
+```
+
+- **Adapters** — each platform isolated behind `BaseAdapter`; adding one is a single file
+- **Config precedence** — environment variables > `~/.openclaw/openclaw.json` > local `config.json`
+- **Secrets** — never committed; `.env`, cookies, and browser profiles are gitignored
+
+---
 
 ## Configuration
 
-Credentials are required for each platform you wish to use. The skill loads configuration from multiple sources with the following precedence:
-
-1.  **Environment Variables** (Highest priority)
-2.  **OpenClaw Global Config** (`~/.openclaw/openclaw.json`)
-3.  **Local `config.json`** (Not recommended for sensitive keys)
-
-### Method 1: Environment Variables
-
-Set the following environment variables for the platforms you want to enable:
-
-```bash
-# X/Twitter
-export TWITTER_API_KEY="..."
-export TWITTER_API_SECRET="..."
-export TWITTER_ACCESS_TOKEN="..."
-export TWITTER_ACCESS_TOKEN_SECRET="..."
-
-# LinkedIn
-export LINKEDIN_ACCESS_TOKEN="***"
-export LINKEDIN_PERSON_URN="urn:li:person:..." # Optional, will be auto-detected
-export LINKEDIN_CLIENT_ID="your-client-id"     # Optional, for OAuth app wiring
-export LINKEDIN_CLIENT_SECRET="your-primary-secret"
-export LINKEDIN_CLIENT_SECRET_SECONDARY="your-secondary-secret"
-# If LINKEDIN_ACCESS_TOKEN accidentally contains a client secret that starts with WPL_AP1,
-# the loader now ignores it and falls back to the token stored in openclaw.json.
-# The adapter also uses LinkedIn-Version 202504 and sends a single-image payload when only one image is attached.
-
-# WeChat Official Account
-export WECHAT_APPID="..."
-export WECHAT_APPSECRET="***"
-# Note: WeChat draft cover images must use permanent thumb media.
-# Inline article images should use local file paths so the adapter can upload them to mmbiz CDN automatically.
-
-# Xiaohongshu
-export XHS_COOKIE="..." # Your browser cookie
-```
-
-### Method 2: OpenClaw Global Config
-
-Edit your `~/.openclaw/openclaw.json` file to add the credentials under the skill's entry. This is the recommended approach for managing keys within the OpenClaw ecosystem.
+Credentials load with this precedence: **env vars → `~/.openclaw/openclaw.json` → `config.json`**.
 
 ```json
 {
@@ -101,14 +198,10 @@ Edit your `~/.openclaw/openclaw.json` file to add the credentials under the skil
       "multi-platform-publisher": {
         "enabled": true,
         "env": {
-          "TWITTER_API_KEY": "your-key",
-          "TWITTER_API_SECRET": "your-secret",
-          "TWITTER_ACCESS_TOKEN": "your-token",
-          "TWITTER_ACCESS_TOKEN_SECRET": "your-token-secret",
-          "LINKEDIN_ACCESS_TOKEN": "your-linkedin-token",
-          "WECHAT_APPID": "your-wechat-appid",
-          "WECHAT_APPSECRET": "your-wechat-secret",
-          "XHS_COOKIE": "your-xiaohongshu-cookie"
+          "TWITTER_API_KEY": "...",
+          "LINKEDIN_ACCESS_TOKEN": "...",
+          "WECHAT_APPID": "...",
+          "XHS_COOKIE": "..."
         }
       }
     }
@@ -116,78 +209,33 @@ Edit your `~/.openclaw/openclaw.json` file to add the credentials under the skil
 }
 ```
 
-## Usage
+See `config.json.example` for the full key list.
 
-The skill is invoked through its Python entrypoint, `main.py`. You can call it directly or through your OpenClaw agent if it's configured to use Python tools.
+---
 
-### Publish Content
+## Roadmap
 
-**Publish inline content to all configured platforms:**
-```bash
-python3 {baseDir}/main.py publish --content "This is my new post about #AI and #OpenClaw!"
-```
+- [x] 4 API adapters — X, LinkedIn, WeChat, Xiaohongshu
+- [x] Content adaptation engine
+- [x] super-writer content pipeline merged in
+- [x] Browser-automation publishers — Hacker News, Reddit, note.com, Substack
+- [ ] Promote super-writer publishers into first-class `adapters/`
+- [ ] `npx skills add mguozhen/multi-platform-publisher` one-line install
+- [ ] Scheduled / queued publishing
 
-**Publish from a Markdown file to specific platforms:**
-```bash
-python3 {baseDir}/main.py publish --file ./my-article.md --platforms twitter,linkedin
-```
-
-**Publish with an image:**
-```bash
-python3 {baseDir}/main.py publish --content "Check out this photo!" --images ./photo.jpg
-```
-
-**Publish a long post as a Twitter/X thread:**
-```bash
-python3 {baseDir}/main.py publish --file ./long-article.md --platforms twitter --thread
-```
-
-**Preview a post without publishing (Dry Run):**
-```bash
-python3 {baseDir}/main.py publish --content "Test post" --dry-run
-```
-
-### Utility Commands
-
-**List all available platforms and their status:**
-```bash
-python3 {baseDir}/main.py list-platforms
-```
-
-**Validate credentials for all configured platforms:**
-```bash
-python3 {baseDir}/main.py validate
-```
+---
 
 ## Development
 
-### Project Structure
-
-```
-multi-platform-publisher/
-├── adapters/           # Platform-specific logic (Twitter, LinkedIn, etc.)
-├── utils/              # Shared utilities (content adaptation, config)
-├── tests/              # Unit and integration tests
-├── assets/             # Static assets (icons, etc.)
-├── main.py             # CLI entrypoint and core orchestrator
-├── SKILL.md            # OpenClaw skill definition
-├── manifest.json       # Skill metadata
-├── README.md           # This file
-└── requirements.txt    # Python dependencies
-```
-
-### Running Tests
-
-To run the included tests, you'll need `pytest`:
-
 ```bash
-# Install pytest
 python3 -m pip install pytest
-
-# Run tests from the skill's root directory
 python3 -m pytest
 ```
 
+---
+
 ## License
 
-This OpenClaw Skill is distributed under the **MIT License**. See the `LICENSE` file for more information.
+MIT — see [LICENSE](LICENSE).
+
+**Author**: [mguozhen](https://github.com/mguozhen)

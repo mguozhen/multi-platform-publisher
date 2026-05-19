@@ -1,7 +1,7 @@
 {
   "name": "multi-platform-publisher",
-  "version": "1.0.0",
-  "description": "Publish content to multiple social media platforms (X/Twitter, LinkedIn, WeChat Official Account, Xiaohongshu) with one command. Automatically adapts content for each platform.",
+  "version": "1.1.0",
+  "description": "Publish content to 13 platforms (X/Twitter, LinkedIn, WeChat, Xiaohongshu, Dev.to, Qiita, YouTube, Hacker News, Reddit, note.com, Substack, Douyin, Channels) with one command. Auto-adapts content per platform, and bundles the super-writer content pipeline: topic selection, AI drafting, human review, multi-platform publishing.",
   "author": "mguozhen",
   "license": "MIT",
   "homepage": "https://github.com/mguozhen/multi-platform-publisher",

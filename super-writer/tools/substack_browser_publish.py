@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import argparse
+import re
+import subprocess
 import sys
 import time
 from pathlib import Path
@@ -179,6 +181,27 @@ def fill_editor(driver: Chrome, article: dict[str, str]) -> None:
     driver.save_screenshot("/Users/hunter/self-media/content/substack/substack-draft-filled.png")
 
 
+def watch_and_open(driver: Chrome, timeout: int = 1800) -> str | None:
+    """监测你点 Publish 后跳转到的已发布 URL → 打印 + 自动 open。"""
+    print("Watching for publish (点 Publish 后自动抓链接)...", flush=True)
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        try:
+            url = driver.current_url
+        except Exception:  # noqa: BLE001
+            return None
+        if re.search(r"https?://[^/]+\.substack\.com/p/", url):
+            print(f"PUBLISHED_URL: {url}", flush=True)
+            try:
+                subprocess.run(["open", url], check=False)
+            except Exception:  # noqa: BLE001
+                pass
+            return url
+        time.sleep(4)
+    print("Publish not detected within timeout.", flush=True)
+    return None
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Open Substack and fill a draft post from an article package.")
     parser.add_argument("article_dir", type=Path)
@@ -200,6 +223,7 @@ def main() -> None:
         print("Draft filled. Review the browser window and publish manually.")
         print(f"Title: {article['title']}")
         print(f"Tags to add manually if needed: {article['tags']}")
+        watch_and_open(driver)
         while True:
             time.sleep(60)
     except KeyboardInterrupt:

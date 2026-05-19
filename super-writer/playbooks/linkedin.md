@@ -4,6 +4,11 @@
 > 工具: li-post.py (OAuth)
 > 角色: 商业信用 · 海外 founder 网络
 
+## ⚠️ 全英文铁律
+
+LinkedIn **正文 + 配图都必须英文**。绝不能把中文平台（公众号/小红书）的中文封面
+复用到 LinkedIn 帖子上。做多平台时单独渲染英文封面（参考 cover_en.png 模式）。
+
 ## 核心定位
 
 LinkedIn 看的是「商业判断」。Hunter 的优势：真在跑 SaaS 集团的董事长视角，
