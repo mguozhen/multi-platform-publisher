@@ -1,0 +1,30 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-09-29/server.schema.json",
+  "name": "io.github.mguozhen/multi-platform-publisher",
+  "description": "Write once, publish everywhere — adapts a single piece of content to X/Twitter (threads), LinkedIn (paragraphs), WeChat (HTML drafts), and Xiaohongshu (emoji + tags) in one MCP call. Plus dry-run preview and 9 more platforms through the bundled super-writer pipeline.",
+  "version": "1.1.0",
+  "repository": {
+    "url": "https://github.com/mguozhen/multi-platform-publisher",
+    "source": "github"
+  },
+  "websiteUrl": "https://github.com/mguozhen/multi-platform-publisher",
+  "packages": [
+    {
+      "registryType": "pypi",
+      "identifier": "multi-platform-publisher",
+      "version": "1.1.0",
+      "transport": { "type": "stdio" },
+      "_comment": "PENDING — package not yet on PyPI. Install from source: git clone + pip install -r requirements.txt, then python -m mcp_server.",
+      "environmentVariables": [
+        { "name": "TWITTER_API_KEY",            "description": "X/Twitter API key (OAuth 1.0a)",        "isRequired": false, "isSecret": true },
+        { "name": "TWITTER_API_SECRET",         "description": "X/Twitter API secret",                  "isRequired": false, "isSecret": true },
+        { "name": "TWITTER_ACCESS_TOKEN",       "description": "X/Twitter access token",                "isRequired": false, "isSecret": true },
+        { "name": "TWITTER_ACCESS_TOKEN_SECRET","description": "X/Twitter access token secret",         "isRequired": false, "isSecret": true },
+        { "name": "LINKEDIN_ACCESS_TOKEN",      "description": "LinkedIn OAuth 2.0 access token",       "isRequired": false, "isSecret": true },
+        { "name": "WECHAT_APPID",               "description": "WeChat Official Account AppID",         "isRequired": false, "isSecret": true },
+        { "name": "WECHAT_APPSECRET",           "description": "WeChat Official Account AppSecret",     "isRequired": false, "isSecret": true },
+        { "name": "XHS_COOKIE",                 "description": "Xiaohongshu session cookie (short-lived)", "isRequired": false, "isSecret": true }
+      ]
+    }
+  ]
+}

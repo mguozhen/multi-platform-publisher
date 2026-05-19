@@ -9,10 +9,76 @@
 <p align="center">
   <a href="#quick-start"><img src="https://img.shields.io/badge/setup-60s-brightgreen?style=flat-square" alt="60s Setup"></a>
   <a href="#supported-platforms"><img src="https://img.shields.io/badge/platforms-13-FF6A00?style=flat-square" alt="13 platforms"></a>
-  <a href="#the-super-writer-pipeline"><img src="https://img.shields.io/badge/pipeline-super--writer-blueviolet?style=flat-square" alt="super-writer pipeline"></a>
+  <a href="#mcp-tools"><img src="https://img.shields.io/badge/MCP%20tools-4-blueviolet?style=flat-square" alt="4 MCP tools"></a>
+  <a href="#the-super-writer-pipeline"><img src="https://img.shields.io/badge/pipeline-super--writer-2a6f4e?style=flat-square" alt="super-writer pipeline"></a>
   <img src="https://img.shields.io/badge/python-%E2%89%A53.8-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python 3.8+">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="MIT"></a>
 </p>
+
+<p align="center">
+  <a href="docs/screenshots/xhs-cover.png">
+    <img src="docs/screenshots/xhs-cover.png" alt="Multi-Platform Publisher — one source, every platform" width="60%">
+  </a>
+</p>
+
+---
+
+## Per-platform output gallery
+
+The same input piece, reshaped by each adapter — real published assets, not mockups.
+
+### X / Twitter — threads, not the same text
+
+<p align="center">
+  <a href="docs/screenshots/twitter-published.png">
+    <img src="docs/screenshots/twitter-published.png" alt="X / Twitter published thread" width="78%">
+  </a>
+</p>
+
+The Twitter adapter strips markdown, splits at 270 chars with numbering, and chains the post as a thread. Inline images and the original URL are preserved.
+
+---
+
+### LinkedIn — clean paragraphs, 3000-char cap
+
+<p align="center">
+  <a href="docs/screenshots/linkedin-placeholder.svg">
+    <img src="docs/screenshots/linkedin-placeholder.svg" alt="LinkedIn post output preview" width="78%">
+  </a>
+</p>
+
+LinkedIn gets a professional-register rewrite: no markdown artifacts, real paragraph breaks, hashtag block at the end. (Real post screenshot lands here after the next campaign — the adapter is live today.)
+
+---
+
+### WeChat Official Account — HTML draft, never auto-published
+
+<p align="center">
+  <a href="docs/screenshots/wechat-published.png">
+    <img src="docs/screenshots/wechat-published.png" alt="WeChat Official Account article cover" width="60%">
+  </a>
+</p>
+
+WeChat is **safety-locked to the draft box** — `publish_to_platforms` returns a `draft_id`, never a public URL. You review and tap publish in the Official Account dashboard. The image above is the cover art generated for a real MPP article; the body is rendered as styled HTML by `adapters/wechat_adapter.py`.
+
+---
+
+### Xiaohongshu — emoji, tags, and an 8-slide carousel
+
+<p align="center">
+  <a href="docs/screenshots/xhs-cover.png"><img src="docs/screenshots/xhs-cover.png" alt="XHS cover" width="22%"></a>
+  <a href="docs/screenshots/xhs-card-1.png"><img src="docs/screenshots/xhs-card-1.png" alt="XHS card 1" width="22%"></a>
+  <a href="docs/screenshots/xhs-card-2.png"><img src="docs/screenshots/xhs-card-2.png" alt="XHS card 2" width="22%"></a>
+  <a href="docs/screenshots/xhs-card-3.png"><img src="docs/screenshots/xhs-card-3.png" alt="XHS card 3" width="22%"></a>
+</p>
+<p align="center">
+  <a href="docs/screenshots/xhs-card-4.png"><img src="docs/screenshots/xhs-card-4.png" alt="XHS card 4" width="22%"></a>
+  <a href="docs/screenshots/xhs-card-5.png"><img src="docs/screenshots/xhs-card-5.png" alt="XHS card 5" width="22%"></a>
+  <a href="docs/screenshots/xhs-card-6.png"><img src="docs/screenshots/xhs-card-6.png" alt="XHS card 6" width="22%"></a>
+  <a href="docs/screenshots/xhs-card-7.png"><img src="docs/screenshots/xhs-card-7.png" alt="XHS card 7" width="22%"></a>
+</p>
+
+Xiaohongshu's native format is image-text with a cover + carousel + 1000-char body. The XHS adapter injects emoji, appends topic tags, and respects the cap. The 8-card set above is the **actual XHS post for `multi-platform-publisher` itself** — published via the same MCP tool you're about to install.
 
 ---
 
@@ -38,58 +104,76 @@ One piece of content in. Thirteen platform-native posts out.
 ```
 
 - **Inputs** — a Markdown file or inline text, optional images
-- **Engine** — `content_adapter.py` reshapes per platform (char limits, threads, HTML, emoji, tags)
-- **Two layers** — a one-command **publisher** (`main.py` + API adapters) **and** the **super-writer** content pipeline (topic selection → AI draft → human review → publish)
+- **Engine** — `utils/content_adapter.py` reshapes per platform (char limits, threads, HTML, emoji, tags)
+- **Three surfaces** — an **MCP server** (`python -m mcp_server`), a one-command **CLI** (`main.py`), **and** the **super-writer** content pipeline behind it (topic → AI draft → human review → publish)
 
 ---
 
 ## Quick start
 
-### Option A — One-command publish (recommended)
+### Option A — As an MCP server (recommended for Agent use)
 
 ```bash
 # 1. Install
-pip3 install -r requirements.txt
+git clone https://github.com/mguozhen/multi-platform-publisher
+cd multi-platform-publisher && pip3 install -r requirements.txt
 
-# 2. Set credentials for the platforms you want (env vars or ~/.openclaw/openclaw.json)
-export TWITTER_API_KEY="..."   TWITTER_API_SECRET="..."
-export TWITTER_ACCESS_TOKEN="..."   TWITTER_ACCESS_TOKEN_SECRET="..."
-export LINKEDIN_ACCESS_TOKEN="..."
-export WECHAT_APPID="..."   WECHAT_APPSECRET="..."
-export XHS_COOKIE="..."
+# 2. Register with your agent (one line)
+claude mcp add mpp -- python -m mcp_server
 
-# 3. Publish
-python3 main.py publish --file article.md --platforms all
+# 3. Set credentials for the platforms you want (env or ~/.openclaw/openclaw.json)
+export TWITTER_API_KEY="..."   LINKEDIN_ACCESS_TOKEN="..."
+export WECHAT_APPID="..."      XHS_COOKIE="..."
 ```
 
-### Option B — Preview first (dry run)
+Then in any MCP-capable agent:
+
+> Use the `mpp` MCP server to publish `~/post.md` to X and LinkedIn, and preview the WeChat draft first.
+
+The agent calls `adapt_content` (free preview), then `publish_to_platforms`, and returns the per-platform results.
+
+### Option B — One-command CLI
 
 ```bash
-python3 main.py publish --content "My post about #AI" --dry-run
+python3 main.py publish --file article.md --platforms all
+python3 main.py publish --content "My post about #AI" --platforms twitter,linkedin
+```
+
+### Option C — Preview first (dry run)
+
+```bash
+python3 main.py publish --content "My post" --dry-run
 ```
 
 Shows exactly how the content will be reshaped for each platform — no posting.
 
-### Option C — Ask your agent
-
-In OpenClaw / Hermes / Claude Code, this ships as a Skill — just say:
-
-> Publish `article.md` to Twitter and LinkedIn, and put a draft in WeChat.
-
-The agent calls `main.py` and hands you the results.
-
-### Utility commands
+### Option D — Utility commands
 
 ```bash
-python3 main.py list-platforms   # show platforms + credential status
+python3 main.py list-platforms   # platforms + credential status
 python3 main.py validate         # check credentials for every configured platform
 ```
 
 ---
 
+## MCP tools
+
+| # | Tool | Input | When to use |
+|---|---|---|---|
+| 1 | `publish_to_platforms` | content/file_path, platforms[], images[], dry_run | Default — adapt + publish (or dry-run) to N platforms in one call |
+| 2 | `adapt_content` | content/file_path, platform? | Preview the reshape per platform — free, no network |
+| 3 | `list_supported_platforms` | (none) | Pre-flight: who is available, with what limits |
+| 4 | `validate_credentials` | platform | "Are my keys set?" — no network call |
+
+All tools return JSON-serializable dicts. Errors come back in a structured shape with `type` + `suggested_action` + `retryable` — see [`docs/errors.md`](docs/errors.md).
+
+Capability manifest: [`.well-known/agent-capabilities.json`](.well-known/agent-capabilities.json).
+
+---
+
 ## Supported platforms
 
-Two surfaces. The **publisher** (`main.py`) covers four platforms over official APIs. The **super-writer pipeline** adds nine more through dedicated publishers.
+Two surfaces. The **publisher** (`main.py` + MCP) covers four platforms over official APIs. The **super-writer pipeline** adds nine more through dedicated publishers.
 
 | Platform | Surface | Auth | Output |
 |---|---|---|---|
@@ -115,12 +199,14 @@ Two surfaces. The **publisher** (`main.py`) covers four platforms over official 
 
 The same source is reshaped, not just truncated:
 
-- **X / Twitter** — strips Markdown, splits into 280-char tweets, builds numbered threads
+- **X / Twitter** — strips Markdown, splits into 270-char tweets, builds numbered threads
 - **LinkedIn** — professional register, clean paragraphs, up to 3,000 chars
 - **WeChat** — styled HTML article rendered into a draft (manual publish in the dashboard)
 - **Xiaohongshu** — casual tone, emoji injection, topic tags, 1,000-char cap
 - **Dev.to / Qiita** — front-matter + tags, English / Japanese dev framing
 - **Substack / note.com** — long-form essay + short Notes
+
+Each is testable in isolation via `adapt_content(content=..., platform=...)`.
 
 ---
 
@@ -146,9 +232,11 @@ topic gacha  →  AI draft (persona-locked)  →  cover + layout  →  Telegram 
 | | **multi-platform-publisher** | Buffer / Hootsuite | Typefully | Manual posting |
 |---|---|---|---|---|
 | **Per-platform content adaptation** | ✅ reshapes tone + format | ⚠️ same text everywhere | ⚠️ Twitter-only | ✅ but by hand |
-| **Agent-callable** | ✅ Skill / CLI | ❌ | ❌ | ❌ |
+| **Agent-callable (MCP)** | ✅ 4 MCP tools | ❌ | ❌ | ❌ |
+| **Dry-run preview** | ✅ `adapt_content` (free) | ⚠️ limited | ✅ Twitter only | n/a |
 | **WeChat / Xiaohongshu / Dev.to / Qiita** | ✅ | ❌ | ❌ | ✅ |
 | **Content pipeline (topic → draft → review)** | ✅ super-writer | ❌ | ❌ | ❌ |
+| **Per-platform failure isolation** | ✅ | ❌ batch fails as one | n/a | n/a |
 | **Cost** | free, MIT | $6–99/mo | $12.50/mo | free |
 | **Open source** | ✅ | ❌ | ❌ | — |
 
@@ -158,6 +246,7 @@ topic gacha  →  AI draft (persona-locked)  →  cover + layout  →  Telegram 
 
 ```
 multi-platform-publisher/
+├── mcp_server.py              # MCP entrypoint — 4 tools (publish, adapt, list, validate)
 ├── main.py                    # CLI entrypoint + orchestrator
 ├── adapters/
 │   ├── base_adapter.py        # abstract base: publish() / validate() / upload_image()
@@ -175,6 +264,12 @@ multi-platform-publisher/
 │   ├── playbooks/             # 15 writing playbooks
 │   ├── platform-roadmap.md
 │   └── persona.md
+├── .well-known/
+│   └── agent-capabilities.json   # discovery manifest for Agents
+├── docs/
+│   ├── errors.md              # semantic error code reference
+│   ├── screenshots/           # per-platform output gallery (shown above)
+│   └── mcp-distribution/      # paste-ready catalog submission package
 ├── podcasts/                  # sample podcast audio
 ├── tests/
 ├── SKILL.md                   # OpenClaw skill definition
@@ -209,7 +304,21 @@ Credentials load with this precedence: **env vars → `~/.openclaw/openclaw.json
 }
 ```
 
-See `config.json.example` for the full key list.
+See `config.json.example` for the full key list. Per-platform keys are independent — set only the platforms you want.
+
+---
+
+## Distribution / where to find us
+
+| Channel | Status |
+|---|---|
+| GitHub topics (`mcp`, `mcp-server`, `cross-post`) | 🟢 indexed |
+| [Glama](https://glama.ai/mcp/servers) | 🟢 Auto-indexed via repo topics |
+| [punkpeye/awesome-mcp-servers](https://github.com/punkpeye/awesome-mcp-servers) | 🟡 submission ready (`docs/mcp-distribution/`) |
+| mcp.so / Smithery / PulseMCP | 🟡 submission package ready, pending OAuth |
+| Official MCP Registry | 🟡 pending PyPI publish |
+
+Paste-ready submission package in [`docs/mcp-distribution/`](docs/mcp-distribution/).
 
 ---
 
@@ -219,6 +328,9 @@ See `config.json.example` for the full key list.
 - [x] Content adaptation engine
 - [x] super-writer content pipeline merged in
 - [x] Browser-automation publishers — Hacker News, Reddit, note.com, Substack
+- [x] **MCP server (4 tools) + capability manifest + semantic error codes**
+- [ ] Real LinkedIn published screenshot for the gallery
+- [ ] PyPI publish + Official MCP Registry submission
 - [ ] Promote super-writer publishers into first-class `adapters/`
 - [ ] `npx skills add mguozhen/multi-platform-publisher` one-line install
 - [ ] Scheduled / queued publishing

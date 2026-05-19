@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" font-family="-apple-system, 'Segoe UI', Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f3f6f8"/>
+      <stop offset="1" stop-color="#e6ecf0"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="760" fill="url(#bg)"/>
+  <!-- card -->
+  <rect x="80" y="60" width="1040" height="640" rx="12" fill="#ffffff" stroke="#d6dde2"/>
+  <!-- header -->
+  <circle cx="150" cy="135" r="36" fill="#0a66c2"/>
+  <text x="150" y="146" text-anchor="middle" font-size="30" font-weight="700" fill="#ffffff">M</text>
+  <text x="206" y="128" font-size="22" font-weight="700" fill="#000000">Multi-Platform Publisher</text>
+  <text x="206" y="155" font-size="16" fill="#5e6973">Posting to LinkedIn · 3000-char limit · clean paragraphs</text>
+  <text x="206" y="180" font-size="14" fill="#5e6973">Auto-published via main.py · 12s ago</text>
+  <!-- body -->
+  <text x="120" y="240" font-size="18" font-weight="700" fill="#000000">One command. Every platform. Your content, auto-adapted.</text>
+  <text x="120" y="280" font-size="16" fill="#1f2933">Write once → get a Twitter thread, a LinkedIn post (this one),</text>
+  <text x="120" y="305" font-size="16" fill="#1f2933">a WeChat HTML draft, and a Xiaohongshu note in one CLI run.</text>
+  <text x="120" y="345" font-size="16" fill="#1f2933">The LinkedIn adapter strips markdown, formats into clean</text>
+  <text x="120" y="370" font-size="16" fill="#1f2933">paragraphs, and respects the 3000-character limit — so the</text>
+  <text x="120" y="395" font-size="16" fill="#1f2933">post reads native, not "exported from another tool".</text>
+  <text x="120" y="435" font-size="16" fill="#1f2933">→ github.com/mguozhen/multi-platform-publisher</text>
+  <text x="120" y="475" font-size="14" fill="#0a66c2" font-weight="600">#AgentNative #OpenSource #Productivity #DeveloperTools</text>
+  <!-- engagement bar -->
+  <line x1="120" y1="540" x2="1080" y2="540" stroke="#e3e6e9"/>
+  <g font-size="14" fill="#5e6973">
+    <text x="120" y="580">Like</text>
+    <text x="280" y="580">Comment</text>
+    <text x="440" y="580">Repost</text>
+    <text x="600" y="580">Send</text>
+  </g>
+  <!-- footer ribbon -->
+  <rect x="80" y="700" width="1040" height="0" fill="none"/>
+  <text x="600" y="745" text-anchor="middle" font-size="14" fill="#7a8794" font-style="italic">
+    LinkedIn post preview · real-screenshot capture coming after the next post · adapter is live
+  </text>
+</svg>
