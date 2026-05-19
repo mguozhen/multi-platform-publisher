@@ -29,7 +29,8 @@ for p in (BRIDGE, LINKEDIN):
 
 
 def publish(platform: str, text: str, *, title: str | None = None,
-            tags: list[str] | None = None, link: str | None = None) -> dict:
+            tags: list[str] | None = None, link: str | None = None,
+            subreddit: str | None = None) -> dict:
     """单平台发布。link 是 GitHub/项目链接,会按平台规矩处理。"""
     platform = platform.lower()
     try:
@@ -43,6 +44,14 @@ def publish(platform: str, text: str, *, title: str | None = None,
             return _publish_qiita(text, title=title, tags=tags or [])
         if platform == "wechat":
             return _publish_wechat(text, title=title)
+        if platform in ("hackernews", "hn"):
+            return _publish_hn(text, title=title, link=link)
+        if platform == "reddit":
+            return _publish_reddit(text, title=title, subreddit=subreddit)
+        if platform == "note":
+            return _publish_note(text, title=title, tags=tags or [])
+        if platform == "substack":
+            return _publish_substack(text, title=title, tags=tags or [])
         return {"ok": False, "error": f"unsupported platform: {platform}"}
     except Exception as e:
         return {"ok": False, "error": f"{type(e).__name__}: {e}"[:400]}
@@ -161,6 +170,78 @@ def _publish_wechat(text: str, *, title: str | None) -> dict:
     return {"ok": True,
             "url": "https://mp.weixin.qq.com/cgi-bin/appmsg?action=list_draft",
             "note": f"WeChat 已进草稿箱 (media_id={r['media_id']}, 群发由你手动确认)"}
+
+
+# ───────────────────────── HN / Reddit / note / Substack ─────────────────────────
+# 4 个浏览器自动化平台。**风险**:HN / Reddit 反 self-promo 极严,playbook 明令
+# 不进例行批量。这里实现路由,但默认行为是 stage(写文件 + 给指令),不自动发。
+
+STAGE = HOME / "self-media" / "content" / "_staged" / "mpp_browser_jobs"
+
+
+def _stage_text(platform: str, text: str, title: str | None,
+                link: str | None = None, subreddit: str | None = None) -> Path:
+    STAGE.mkdir(parents=True, exist_ok=True)
+    ts = __import__("time").strftime("%Y%m%d-%H%M%S")
+    d = STAGE / f"{platform}-{ts}"
+    d.mkdir(exist_ok=True)
+    (d / "post.md").write_text(text, encoding="utf-8")
+    meta = []
+    if title: meta.append(f"## Primary Title\n{title}\n")
+    if link: meta.append(f"## Link\n{link}\n")
+    if subreddit: meta.append(f"## Subreddit\nr/{subreddit}\n")
+    if meta:
+        (d / "meta.md").write_text("\n".join(meta), encoding="utf-8")
+    return d
+
+
+def _publish_hn(text: str, *, title: str | None, link: str | None) -> dict:
+    """HN: 默认 stage,不自动发。playbook 明令「不进例行批量」。"""
+    d = _stage_text("hn", text, title, link=link)
+    note = ("⚠️ HN playbook: 不进例行批量。stage 已写入,手动评估后再发:\n"
+            f"  python3 ~/self-media/tools/hn_publish.py "
+            f"--title {title!r} --url {link or '<url>'} --auto-publish")
+    return {"ok": True, "url": str(d), "note": note}
+
+
+def _publish_reddit(text: str, *, title: str | None,
+                    subreddit: str | None) -> dict:
+    """Reddit: 默认 stage,不自动发。需指定 subreddit 才能用 CLI。"""
+    d = _stage_text("reddit", text, title, subreddit=subreddit)
+    sr = subreddit or "<subreddit>"
+    note = ("⚠️ Reddit playbook: 每个 sub 规则不同,先 9:1 法则积累 karma。\n"
+            f"  python3 ~/self-media/tools/reddit_publish.py {d} --subreddit {sr}")
+    return {"ok": True, "url": str(d), "note": note}
+
+
+def _publish_note(text: str, *, title: str | None, tags: list[str]) -> dict:
+    """note.com: 浏览器自动化,半自动(自动填写,手点「公開」)。"""
+    d = _stage_text("note", text, title)
+    if tags:
+        (d / "meta.md").write_text(
+            ((d / "meta.md").read_text(encoding="utf-8") if (d / "meta.md").exists() else "")
+            + f"\n## Tags\n{', '.join(tags)}\n", encoding="utf-8")
+    try:
+        proc = subprocess.run(
+            ["python3", str(HOME / "self-media" / "tools" / "note_publish.py"), str(d)],
+            timeout=180, capture_output=True, text=True)
+        if proc.returncode == 0:
+            return {"ok": True, "url": "https://note.com/notes (drafts)",
+                    "note": "note.com: 自动填写完成,Chrome 已打开,你点「公開」"}
+        return {"ok": False, "error": f"note_publish exit {proc.returncode}: "
+                f"{proc.stderr[:200]}"}
+    except subprocess.TimeoutExpired:
+        return {"ok": False, "error": "note_publish 超时(>3min,可能 Chrome 卡住)"}
+
+
+def _publish_substack(text: str, *, title: str | None,
+                      tags: list[str]) -> dict:
+    """Substack: 半自动 — 用 substack_pack 打包,然后等人手动发。"""
+    d = _stage_text("substack", text, title)
+    return {"ok": True, "url": str(d),
+            "note": ("Substack: stage 已就绪,跑发布助手粘到浏览器:\n"
+                     f"  python3 ~/self-media/tools/substack_publish_helper.py {d} "
+                     "--copy title  # 然后 --copy post  --copy tags")}
 
 
 # ───────────────────────── helpers ─────────────────────────
