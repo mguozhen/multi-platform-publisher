@@ -36,7 +36,27 @@
 - Notes = 从长文里切金句 + 微故事，每天投放
 - ❌ 不写水文、不写"AI 帮你"泛泛而谈；Substack 读者最挑深度
 
+## 爆款长文型（蒸馏自 Jimmy's Journal「Deep Dive: Veeva Systems」, paid 长文）
+
+Substack 头部 paid 长文有一套近乎模板化的结构，**踩这个结构本身就提升完读+订阅**：
+
+1. **品牌问候 hook** —— 第一行 `Hi, <角色称呼>! 👋🏼` 或类似（不是直接进主题）。比如 `Hi, Investor!` / `Hi, Builder!` 这种点名读者身份的，比「Welcome」更有钩感。
+2. **元层观察（不是主题本身）** —— 第二段不讲产品/事件本身，先讲一个**关于该话题的元观察**（如「Markets have an ugly habit of acting first and understanding later」）。让读者觉得作者站得更高。
+3. **「这次说什么」段** —— 用 1-2 句明确这篇要拆 5-6 个维度（"In this deep dive, we'll break down..."），让读者预期完整。
+4. **修辞钩问句** —— 紧跟一句反差大的「A 还是 B?」（如 "Are we looking at a generational opportunity, or does the bottom of this hole have a trapdoor?"）。
+5. **品牌植入板块** —— 一个独立短段 "Welcome to <Newsletter name>, your one-stop shop for <X>." + 一句作者背书 + 一个 Subscribe 按钮（Substack 编辑器自带）。
+6. **"In case you missed it"** —— 列 2-3 篇过往文章内部链接（养老用户阅读链），新号没存量可先省略。
+7. **章节大纲** —— "Today's post is longer than usual, so we've included an outline below:" + 15-20 个 H3 小节列表。这一招提前承诺深度，长文不再吓退人。
+8. **编号 H2 章节** —— `1. Overview` / `2. Business Model` / `3. ...` 每节带数字，最后一节固定是 `Final Thoughts` 或 `Investment Thesis`。
+9. **Source 出处行** —— 凡引图/数据，下面单独一行 `Source: <出处>, <年>`。建立信任。
+10. **段间留白，单句成段** —— 几乎每一句都独立成段。Substack 长文是手机/邮箱阅读，长段就是死。
+11. **付费/订阅卡前置 + 末尾再来一次** —— 中段插一次「Subscribe now and start compounding.」按钮，末尾再插一次。
+12. **无 emoji 滥用** —— 全文除 hook 那个 👋🏼 外不用 emoji。表情清淡 = 严肃感。
+
+→ **这个结构适配 OSS 发布 / 深度复盘 / 行业观察都通**，只需把「Investment Thesis」「Valuation」换成「Architecture」「Adoption」之类的。
+
 ## 发布
 
-- `tools/substack_*.py` 已有 Substack 发布工具（浏览器自动化）
+- `tools/substack_browser_publish.py` —— 浏览器自动化全自动发布（用 `.chrome-substack-profile` 登录态）
+- `tools/substack_publish_helper.py --copy` —— 半自动，复制各段到剪贴板手贴
 - 长文进 draft → 人工审核 → 发布
