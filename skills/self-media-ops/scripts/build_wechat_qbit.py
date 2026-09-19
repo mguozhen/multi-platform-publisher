@@ -33,8 +33,10 @@ DIVIDER = ('<section style="transform: perspective(0px);transform-style: flat;">
 TAIL = (DIVIDER +
   '<p style="text-align: right;margin: 20px 16px;font-size: 16px;font-family: Arial;">'
   '<strong>一键三连</strong><span style="color: %s;"><strong>「点赞」「转发」「小心心」</strong></span></p>'
-  '<p style="text-align: right;margin: 10px 16px 30px;font-size: 16px;font-family: Arial;">'
-  '<strong>欢迎在评论区留下你的想法！</strong></p>') % GREEN
+  '<p style="text-align: right;margin: 10px 16px;font-size: 16px;font-family: Arial;">'
+  '<strong>欢迎在评论区留下你的想法！</strong></p>'
+  '<p style="text-align: right;margin: 6px 16px 30px;font-size: 15px;font-family: Arial;">'
+  '<span style="color: %s;"><strong>关注「Agent101」，每天一篇硅谷前沿 AI 观察</strong></span></p>' % GREEN) % GREEN
 
 def esc(t):
     return t.replace('&','&amp;').replace('<','&lt;').replace('>','&gt;')

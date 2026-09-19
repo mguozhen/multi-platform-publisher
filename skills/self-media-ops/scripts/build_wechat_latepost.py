@@ -56,7 +56,9 @@ def build(src, out=None):
         if ln.startswith('# ') and not title:
             title = ln[2:].strip(); i += 1; continue
         if ln == '---':
-            small = True; i += 1; continue
+            small = True
+            o.append(P % ('如果这篇对你有用，<strong>关注「Agent101」</strong>，每天一篇硅谷前沿 AI 观察。'))
+            i += 1; continue
         if ln.startswith('%% '):
             o.append(INTRO % inline(ln[3:])); i += 1; continue
         if ln.startswith('## '):
