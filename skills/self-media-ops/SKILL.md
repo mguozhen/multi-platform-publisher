@@ -34,7 +34,7 @@ Markdown 约定（晚点）：`%% `导语｜`==x==`黄底引语｜`> `引用块�
 2. **事实核对**：官方原文优先（WebFetch），三方报道交叉（Engadget/The Register/LawSites 这类），引语必须在转写稿里 grep 到原句才算核实。厂商口径一律标注"自家数字，无第三方复测"。
 3. **写作**：新建 `~/<slug>-<style>/`（article.md + figs/zh/）。写完跑 deslop，改到过。
 4. **配图**：新闻用**真实截图**（headless Chrome `--screenshot` 官方公告页/报道页，sips 转 1080 jpeg）；观点文用单线编辑插画（gpt-image-2 走 `router.flatkey.ai/v1/images/generations`，key=`~/.secrets/flatkey-cc.env` 的 FLATKEY_CC_KEY；基础 prompt 见 references/editorial-line-prompt.txt；挂了换 gemini-3-pro-image 走 chat）。
-5. **封面**：`scripts/build_cover_songti.py --kicker "硅谷前沿 AI 观察 · Hunter 在跑" --title "<标题>" --bg <线稿底图> --layout band`（底图=单线画、内容压在下三分之一的横构图）。封面文案必须与最终标题一致。
+5. **封面**：`scripts/build_cover_songti.py --kicker "硅谷前沿 AI 观察 · Agent101" --title "<标题>" --bg <线稿底图> --layout band`（底图=单线画、内容压在下三分之一的横构图）。封面文案必须与最终标题一致。
 6. **推草稿**：改 scripts/push_to_wechat.template.py 顶部 TITLE/DIGEST（≤120字）→ `set -a && source ~/.secrets/wechat.env && set +a && python3 push_to_wechat.py`。需要换封面重推时：先推新草稿，再 `draft/delete` 旧 media_id。
 7. **交付**：`open` 封面给 Hunter；汇报只说结论+骨架；提醒"只进草稿箱"。
 

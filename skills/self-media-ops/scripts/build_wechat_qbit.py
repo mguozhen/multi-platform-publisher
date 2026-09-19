@@ -63,7 +63,7 @@ def build(src, out=None):
     o.append('<p style="text-align: left;margin: 20px 16px 4px;font-size: 14px;'
              'color: rgb(136, 136, 136);font-family: Arial;">Hunter 发自 圣何塞</p>')
     o.append('<p style="text-align: left;margin: 0 16px 10px;font-size: 14px;'
-             'color: %s;font-family: Arial;">Hunter 在跑 | 硅谷前沿 AI 观察</p>' % GREEN)
+             'color: %s;font-family: Arial;">Agent101 | 硅谷前沿 AI 观察</p>' % GREEN)
     while i < len(lines):
         ln = lines[i].rstrip()
         if ln.startswith('# ') and not title:
