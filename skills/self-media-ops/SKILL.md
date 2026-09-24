@@ -35,8 +35,13 @@ Markdown 约定（晚点）：`%% `导语｜`==x==`黄底引语｜`> `引用块�
 3. **写作**：新建 `~/<slug>-<style>/`（article.md + figs/zh/）。写完跑 deslop，改到过；然后按 `lieflat/SKILL.md` 的 11 条白名单规则做去 AI 味 pass（翻案腔/顿号罗列/相邻句同款/破折号/冒号提示语/序数小标题/拟人喻体/概括盖数据/起手式/五种翻译腔/段首零主语），信息守恒：未命中规则的句子逐字保留。
 4. **配图**：新闻用**真实截图**（headless Chrome `--screenshot` 官方公告页/报道页，sips 转 1080 jpeg）；观点文用单线编辑插画（gpt-image-2 走 `router.flatkey.ai/v1/images/generations`，key=`~/.secrets/flatkey-cc.env` 的 FLATKEY_CC_KEY；基础 prompt 见 references/editorial-line-prompt.txt；挂了换 gemini-3-pro-image 走 chat）。
 5. **封面**：`scripts/build_cover_songti.py --kicker "硅谷前沿 AI 观察 · Agent101" --title "<标题>" --bg <线稿底图> --layout band`（底图=单线画、内容压在下三分之一的横构图）。封面文案必须与最终标题一致。
-6. **推草稿**：改 scripts/push_to_wechat.template.py 顶部 TITLE/DIGEST（≤120字）→ `set -a && source ~/.secrets/wechat.env && set +a && python3 push_to_wechat.py`。需要换封面重推时：先推新草稿，再 `draft/delete` 旧 media_id。
+6. **推草稿**：改 scripts/push_to_wechat.template.py 顶部 TITLE/DIGEST。**DIGEST 当第二标题写**（订阅号消息里显示这两行，决定打开率），要给钩子而不是内容概述。→ `set -a && source ~/.secrets/wechat.env && set +a && python3 push_to_wechat.py`。需要换封面重推时：先推新草稿，再 `draft/delete` 旧 media_id。
 7. **交付**：`open` 封面给 Hunter；汇报只说结论+骨架；提醒"只进草稿箱"。
+
+## 一天只发一次（个人主体订阅号硬限制）
+账号是个人主体未认证订阅号：**每天只能群发 1 次**，且不能做微信认证（需企业主体）、菜单与数据接口均被 48001 拦。
+所以**不要一天推多篇独立草稿**（除头条外全部只是"发布"、零推送，这正是阅读量几十的机制原因）。
+正确做法：`scripts/bundle_drafts.py <头条目录> <次条目录>...` 把当天内容合成一条多图文（1 头条 + 最多 7 次条），一次群发全部触达。
 
 ## 全平台（仅 Hunter 说「全平台」时）
 文本→音频→视频三阶段。X=hunterguo101 Premium 单条英文长文（绝不发 thread），X Article 无 API 只能手贴；LinkedIn 英文+配图（em-dash 会被 slop 门拦）；Bluesky/Mastodon 先起 Tailscale 出口 mini1；发布器 `~/self-media/tools/allplatform.py`。
